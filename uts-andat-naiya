@@ -1,0 +1,84 @@
+library(readr)
+#Read Data
+setwd("D:/ANDAT")
+data=read.csv("Employee Attrition.CSV",sep = ";", header = TRUE)
+data
+data_selected <- data[, c(2, 3)] 
+data_selected
+
+#Check the packaging 
+nrow(data_selected)
+ncol(data_selected)
+str(data_selected)
+
+#Look at the top and the bottom of your data 
+head(data_selected)
+tail(data_selected)
+
+#Check your “n”s 
+table(data_selected$last_evaluation)
+colSums(is.na(data_selected))
+dim(data_selected)
+
+#Validate With at Least One External Data Source
+summary(data_selected$satisfaction_level)
+quantile(data_selected$satisfaction_level, seq(0, 1, 0.1), na.rm = TRUE)
+
+# Make a plot (gunakan package ggplot2) 
+library(ggplot2)
+ggplot(data_selected, aes(x = last_evaluation, y = satisfaction_level)) +
+  geom_boxplot(alpha = 0.8, fill = "purple")+
+  labs(title = "Boxplot Last Evaluation",
+       x = "Last Evaluation",
+       y = "Satisfaction Level") +
+  theme_minimal()
+
+#Try the Easy Solution First
+group_by(data_selected,last_evaluation)%>%
+  summarize(mean=mean(satisfaction_level, na.rm = T),
+            median=median(satisfaction_level,na.rm = T))
+
+# Create a new variable categorizing satisfaction_level
+data_selected$satisfaction_level <- ifelse(data_selected$satisfaction_level >= 0.5, "Tinggi", "Rendah")
+
+# Create boxplot for last_evaluation based on satisfaction_category
+ggplot(data_selected, aes(x = satisfaction_level, y = last_evaluation, fill = satisfaction_level)) +
+  geom_boxplot() +
+  labs(title = "Boxplot of Last Evaluation by Satisfaction Level", 
+       x = "Satisfaction Level", 
+       y = "Last Evaluation") +
+  theme_minimal()
+
+#c
+#Model
+model=lm(satisfaction_level~last_evaluation, data = data_selected)
+model
+model = lm(satisfaction_level ~ time_spend_company, data = dataandat)
+summary(model)
+
+#Histogram untuk variabel dependen
+hist(data_selected$satisfaction_level,
+     main="Histogram satisfaction level",
+     xlab="satisfaction level",
+     col="lightgreen",
+     border="black",
+     breaks=20)
+
+# Menghitung rata-rata dan simpangan baku
+mean_satisfaction <- mean(data_selected$satisfaction_level, na.rm = TRUE)
+sd_satisfaction <- sd(data_selected$satisfaction_level, na.rm = TRUE)
+
+# Plot histogram data dan overlay distribusi normal
+hist(data_selected$satisfaction_level, 
+     main="Histogram vs. Normal Distribution", 
+     xlab="Satisfaction Level", 
+     col="orange", 
+     border="black", 
+     breaks=20, 
+     probability=TRUE)
+
+# Overlay distribusi normal
+curve(dnorm(x, mean=mean_satisfaction, sd=sd_satisfaction), 
+      col="blue", 
+      lwd=2, 
+      add=TRUE)
